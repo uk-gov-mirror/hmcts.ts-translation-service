@@ -25,6 +25,21 @@ To build the project execute the following command:
   ./gradlew build
 ```
 
+### Smoke and functional JWT issuer verification
+
+To verify the live OIDC issuer locally, export:
+
+```bash
+  export VERIFY_OIDC_ISSUER=true
+  export OIDC_ISSUER=<expected-idam-issuer>
+```
+
+The verifier is skipped unless `VERIFY_OIDC_ISSUER=true`. When enabled, it fetches a real functional test token, decodes its `iss` claim, and fails if it does not exactly match `OIDC_ISSUER`.
+
+### Codex Workflow Docs
+
+Repo-local workflow docs are indexed in `AGENTS.md`.
+
 ### Running the application
 
 The easiest way to run the application locally is to use the `bootWithCCD` Gradle task.
