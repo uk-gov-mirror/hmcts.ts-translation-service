@@ -3,6 +3,10 @@ server:
   error:
     include-stacktrace: never
 
+#logging:
+#  level:
+#    uk.gov.hmcts.reform.translate: ${TS_LOG_LEVEL:DEBUG}
+
 management:
   endpoint:
     health:
@@ -15,11 +19,19 @@ management:
       exposure:
         include: health, info, prometheus
   health:
+    ssl:
+      enabled: false
     probes:
       enabled: true
 
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.translate.controllers
+  swagger-ui:
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+    swagger-ui:
+      path: /swagger-ui.html
 
 spring:
   main:
