@@ -38,6 +38,8 @@ The verifier is skipped unless `VERIFY_OIDC_ISSUER=true`. When enabled, it fetch
 
 `spring.security.oauth2.client.provider.oidc.issuer-uri` and `oidc.issuer` are intentionally separate. Discovery and JWKS retrieval use the OIDC discovery URL, while JWT validation enforces `OIDC_ISSUER`. If these do not align with the issuer used in real caller tokens, authenticated requests will be rejected.
 
+To confirm the expected issuer from a failing request, decode only the JWT payload and inspect the `iss` claim. Do not commit or document full bearer tokens; record only the derived issuer value.
+
 ### Codex Workflow Docs
 
 Repo-local workflow docs are indexed in `AGENTS.md`.
@@ -73,8 +75,8 @@ Should the docker containers fail to start, it is likely that the `bootWithCCD` 
 Log in, using the commands below
 
 ```bash
-  az acr login --name hmctspublic --subscription DCD-CNP-DEV
-  az acr login --name hmctspublic --subscription DCD-CFT-Sandbox
+  az acr login --name hmctsprod --subscription DCD-CNP-DEV
+  az acr login --name hmctssbox --subscription DCD-CFT-Sandbox
 ```
 
 ### Alternative to running the application
