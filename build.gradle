@@ -162,8 +162,9 @@ task verifyFunctionalTestJwtIssuer(type: JavaExec) {
 
   mainClass = "uk.gov.hmcts.reform.translate.JwtIssuerVerificationApp"
   classpath = sourceSets.functionalTest.runtimeClasspath + sourceSets.main.output + sourceSets.test.output
+  jvmArgs = [ '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED' ]
   onlyIf {
-    System.getenv("VERIFY_OIDC_ISSUER") == "true"
+    System.getenv("VERIFY_OIDC_ISSUER")?.toBoolean()
   }
 }
 

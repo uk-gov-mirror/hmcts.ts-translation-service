@@ -36,6 +36,8 @@ To verify the live OIDC issuer locally, export:
 
 The verifier is skipped unless `VERIFY_OIDC_ISSUER=true`. When enabled, it fetches a real functional test token, decodes its `iss` claim, and fails if it does not exactly match `OIDC_ISSUER`.
 
+`spring.security.oauth2.client.provider.oidc.issuer-uri` and `oidc.issuer` are intentionally separate. Discovery and JWKS retrieval use the OIDC discovery URL, while JWT validation enforces `OIDC_ISSUER`. If these do not align with the issuer used in real caller tokens, authenticated requests will be rejected.
+
 ### Codex Workflow Docs
 
 Repo-local workflow docs are indexed in `AGENTS.md`.
