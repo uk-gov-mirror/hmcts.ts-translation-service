@@ -56,8 +56,8 @@ Should the docker containers fail to start, it is likely that the `bootWithCCD` 
 Log in, using the commands below
 
 ```bash
-  az acr login --name hmctspublic --subscription DCD-CNP-DEV
-  az acr login --name hmctspublic --subscription DCD-CFT-Sandbox
+  az acr login --name hmctsprod --subscription DCD-CNP-DEV
+  az acr login --name hmctsprod --subscription DCD-CFT-Sandbox
 ```
 
 ### Alternative to running the application
