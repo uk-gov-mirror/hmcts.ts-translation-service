@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SecurityConfigurationTest {
 
-    private static final String VALID_ISSUER = "http://fr-am:8080/openam/oauth2/hmcts";
+    private static final String VALID_ISSUER = "http://fr-am:8080/openam/oauth2/realms/root/realms/hmcts";
     private static final String INVALID_ISSUER = "http://unexpected-issuer";
 
     @Test
