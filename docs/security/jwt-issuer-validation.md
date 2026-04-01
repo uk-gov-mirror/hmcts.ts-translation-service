@@ -9,6 +9,35 @@
 - JWT issuer validation is enabled in the active decoder.
 - `spring.security.oauth2.client.provider.oidc.issuer-uri` is used for OIDC discovery and JWKS lookup.
 - `oidc.issuer` is the enforced issuer value and is sourced from `OIDC_ISSUER`.
+- See [HMCTS Guidance](#hmcts-guidance) for the central policy reference.
+
+## HMCTS Guidance
+
+- [JWT iss Claim Validation guidance](https://tools.hmcts.net/confluence/spaces/SISM/pages/1958056812/JWT+iss+Claim+Validation+for+OIDC+and+OAuth+2+Tokens#JWTissClaimValidationforOIDCandOAuth2Tokens-Configurationrecommendation)
+- Use that guidance as the reference point for service-level issuer decisions and configuration recommendations.
+
+## Quick Reference
+
+| Topic | Current repo position |
+| --- | --- |
+| Validation model | Single configured issuer |
+| Current service position | Explicitly enforced legacy `FORGEROCK` issuer |
+| Discovery source | `spring.security.oauth2.client.provider.oidc.issuer-uri` |
+| Enforced issuer | `oidc.issuer` / `OIDC_ISSUER` |
+| Runtime rule | `OIDC_ISSUER` must match the `iss` claim in real accepted tokens |
+
+## Current service position
+
+- `ts-translation-service` is currently configured to enforce the legacy `FORGEROCK` issuer for deployed environments.
+- That matches the current Helm and Jenkins configuration in this repo and keeps issuer validation explicit rather than inferred from discovery metadata.
+- This repo does not currently implement a multi-issuer allow-list because the service is operating in a single configured issuer mode.
+
+## Migration to IDAM issuer
+
+- Moving this service to `IDAM` is an upstream configuration change, not a code-path change in this repo.
+- If this service is moved to `IDAM`, the prerequisite issuer-policy update will be in the upstream `idam-access-config` repository, typically by setting `oauth2.required_issuer: IDAM` for this service there.
+- After that upstream change, this repo’s `OIDC_ISSUER` values in Helm, preview config, and Jenkins must be updated to the new token issuer and verified against a real token.
+- Until that upstream change is made, the correct compliant behavior in this repo is to validate `iss` against the explicitly configured legacy `FORGEROCK` issuer rather than disable issuer checks or guess from discovery.
 
 ## Previous state
 
@@ -24,27 +53,26 @@
 
 ## Configuration meaning
 
-- `spring.security.oauth2.client.provider.oidc.issuer-uri`
-  Used for OIDC discovery metadata and JWKS resolution.
-- `oidc.issuer`
-  Used by `JwtIssuerValidator` as the exact issuer value the service accepts.
+| Setting | Purpose |
+| --- | --- |
+| `spring.security.oauth2.client.provider.oidc.issuer-uri` | OIDC discovery metadata and JWKS resolution |
+| `oidc.issuer` | Exact issuer value enforced by `JwtIssuerValidator` |
 
 ## Test and build coverage
 
-- `src/test/java/uk/gov/hmcts/reform/translate/config/SecurityConfigurationTest.java`
-  Covers the focused validator chain behaviour.
-- `src/integrationTest/java/uk/gov/hmcts/reform/translate/config/JwtDecoderIssuerValidationIT.java`
-  Verifies the active decoder accepts a correctly signed token from the configured issuer and rejects the same key material with an unexpected issuer.
-- `src/functionalTest/java/uk/gov/hmcts/reform/translate/JwtIssuerVerificationApp.java`
-  Acquires a real BEFTA test token, decodes `iss`, and verifies it matches `OIDC_ISSUER` when enabled.
-- `build.gradle`
-  Wires `verifyFunctionalTestJwtIssuer` into `smoke` and `functional`, gated by `VERIFY_OIDC_ISSUER=true`.
+| Area | Coverage |
+| --- | --- |
+| `src/test/java/uk/gov/hmcts/reform/translate/config/SecurityConfigurationTest.java` | Focused validator chain behaviour |
+| `src/integrationTest/java/uk/gov/hmcts/reform/translate/config/JwtDecoderIssuerValidationIT.java` | Active decoder accepts a correctly signed token from the configured issuer and rejects the same key material with an unexpected issuer |
+| `src/functionalTest/java/uk/gov/hmcts/reform/translate/JwtIssuerVerificationApp.java` | Acquires a real BEFTA test token, decodes `iss`, and verifies it matches `OIDC_ISSUER` when enabled |
+| `build.gradle` | Wires `verifyFunctionalTestJwtIssuer` into `smoke` and `functional`, gated by `VERIFY_OIDC_ISSUER=true` |
 
 ## CI and deployment requirement
 
 - `VERIFY_OIDC_ISSUER=true` keeps the verifier mandatory in CI and opt-in locally.
 - Jenkins must export `OIDC_ISSUER` explicitly because the verifier reads process environment, not Helm-rendered runtime env inside the deployed pod.
 - `OIDC_ISSUER` must stay aligned with the real token issuer for each environment.
+- Use [HMCTS Guidance](#hmcts-guidance) as the central policy reference for service-level issuer decisions.
 
 ## How to derive `OIDC_ISSUER`
 
@@ -113,3 +141,7 @@ Do not merge if any of the following are true:
 - Requiring explicit `OIDC_ISSUER` with no static fallback in main runtime config is the preferred pattern, but it is not yet mandatory across all services.
 - Local or test-only fallbacks are acceptable only when they are static, intentional, and clearly scoped to non-production use.
 - The build enforces this policy with `verifyOidcIssuerPolicy`, which fails if `oidc.issuer` is derived from discovery config.
+
+## References
+
+- [HMCTS Guidance](#hmcts-guidance)

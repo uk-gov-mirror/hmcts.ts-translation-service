@@ -38,6 +38,8 @@ The verifier is skipped unless `VERIFY_OIDC_ISSUER=true`. When enabled, it fetch
 
 `spring.security.oauth2.client.provider.oidc.issuer-uri` and `oidc.issuer` are intentionally separate. Discovery and JWKS retrieval use the OIDC discovery URL, while JWT validation enforces `OIDC_ISSUER`. If these do not align with the issuer used in real caller tokens, authenticated requests will be rejected.
 
+This service currently enforces the explicitly configured legacy `FORGEROCK` issuer in deployed environments. If the service is moved to `IDAM`, the prerequisite issuer-policy change will be in the upstream `idam-access-config` repository, after which this repo’s `OIDC_ISSUER` values must be updated to match the new token `iss`.
+
 To confirm the expected issuer from a failing request, decode only the JWT payload and inspect the `iss` claim. Do not commit or document full bearer tokens; record only the derived issuer value.
 
 ### Codex Workflow Docs

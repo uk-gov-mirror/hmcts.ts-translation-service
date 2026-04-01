@@ -84,6 +84,18 @@ class JwtDecoderIssuerValidationIT {
         assertThat(exception.getMessage()).contains("iss");
     }
 
+    @Test
+    void shouldRejectExpiredTokenEvenWhenIssuerMatches() throws Exception {
+        JwtDecoder jwtDecoder = jwtDecoder();
+
+        BadJwtException exception = assertThrows(
+            BadJwtException.class,
+            () -> jwtDecoder.decode(signedToken(issuer(), Instant.now().minusSeconds(60)))
+        );
+
+        assertThat(exception.getMessage()).contains("Jwt expired");
+    }
+
     private JwtDecoder jwtDecoder() {
         SecurityConfiguration securityConfiguration = new SecurityConfiguration(
             mock(uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter.class),
@@ -101,7 +113,13 @@ class JwtDecoderIssuerValidationIT {
     }
 
     private String signedToken(String issuer) throws JOSEException, ParseException {
-        Instant now = Instant.now();
+        return signedToken(issuer, Instant.now().plusSeconds(300));
+    }
+
+    private String signedToken(String issuer, Instant expiresAt) throws JOSEException, ParseException {
+        Instant issuedAt = expiresAt.isBefore(Instant.now())
+            ? expiresAt.minusSeconds(60)
+            : Instant.now().minusSeconds(60);
         SignedJWT signedJwt = new SignedJWT(
             new JWSHeader.Builder(JWSAlgorithm.RS256)
                 .keyID(KeyGenerator.getRsaJwk().getKeyID())
@@ -110,8 +128,8 @@ class JwtDecoderIssuerValidationIT {
             new JWTClaimsSet.Builder()
                 .issuer(issuer)
                 .subject("user")
-                .issueTime(Date.from(now.minusSeconds(60)))
-                .expirationTime(Date.from(now.plusSeconds(300)))
+                .issueTime(Date.from(issuedAt))
+                .expirationTime(Date.from(expiresAt))
                 .build()
         );
         signedJwt.sign(new RSASSASigner(KeyGenerator.getRsaJwk().toPrivateKey()));
