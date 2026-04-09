@@ -8,7 +8,7 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: hmctspublic.azurecr.io/ts/translation-service:latest
+    image: hmctsprod.azurecr.io/ts/translation-service:latest
     container_name: translation-service
     environment:
       TS_TRANSLATION_SERVICE_DB_HOST: ts-db
