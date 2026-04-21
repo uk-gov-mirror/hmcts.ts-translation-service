@@ -78,7 +78,7 @@ Log in, using the commands below
 
 ```bash
   az acr login --name hmctsprod --subscription DCD-CNP-DEV
-  az acr login --name hmctssbox --subscription DCD-CFT-Sandbox
+  az acr login --name hmctsprod --subscription DCD-CFT-Sandbox
 ```
 
 ### Alternative to running the application
